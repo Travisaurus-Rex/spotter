@@ -1,8 +1,8 @@
 import React from 'react';
 import './Dashboard.css';
 
-import { Sidebar } from './Sidebar';
-import { Tab } from './Tab';
+import { Sidebar } from '../Sidebar/Sidebar';
+import { Tab } from '../Tab/Tab';
 import { AudioPlayer } from './AudioPlayer';
 
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
