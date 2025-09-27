@@ -1,37 +1,29 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/outline';
+import { useSelector, useDispatch } from 'react-redux';
+import type { RootState, AppDispatch } from "@/store";
+import {
+  play,
+  pause,
+  setTime,
+  setDuration,
+} from "@/store/playerSlice";
 
-interface AudioPlayerProps {
-  src: string;
-  title?: string;
-}
-
-export default function AudioPlayer({ src, title }: AudioPlayerProps) {
+export default function AudioPlayer() {
+  const dispatch = useDispatch<AppDispatch>();
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-
+  const { isPlaying, currentTime, currentTrack, duration } = useSelector((state: RootState) => state.player)
+  
   const togglePlay = () => {
     if (!audioRef.current) return;
     if (isPlaying) {
       audioRef.current.pause();
+      dispatch(pause());
     } else {
       audioRef.current.play();
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleTimeUpdate = () => {
-    if (!audioRef.current) return;
-    setCurrentTime(audioRef.current.currentTime);
-  };
-
-  const handleLoadedMetadata = () => {
-    if (audioRef.current) {
-      setDuration(audioRef.current.duration);
+      dispatch(play());
     }
   };
 
@@ -39,29 +31,32 @@ export default function AudioPlayer({ src, title }: AudioPlayerProps) {
     if (!audioRef.current) return;
     const value = Number(e.target.value);
     audioRef.current.currentTime = value;
-    setCurrentTime(value);
+    dispatch(setTime(value));
   };
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    const handleUpdateTime = () => dispatch(setTime(audio.currentTime));
+    const handleMetaData = () => dispatch(setDuration(audio.duration));
+
+    audio.addEventListener("timeupdate", handleUpdateTime);
+    audio.addEventListener("loadedmetadata", handleMetaData);
 
     return () => {
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("timeupdate", handleUpdateTime);
+      audio.removeEventListener("loadedmetadata", handleMetaData);
     };
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="fixed bottom-0 left-1/2 z-[999] w-[400px] max-w-[calc(100%-70px)] -translate-x-1/2 rounded-t-md bg-neutral-700 shadow-lg">
-      <audio ref={audioRef} src={src} preload="metadata" />
+      <audio ref={audioRef} src={currentTrack?.src} preload="metadata" />
 
-      {title && (
+      {currentTrack?.title && (
         <p className="song-title mt-3 text-center text-xs leading-3 text-white">
-          <span className="text-pink-500">{title}</span>
+          <span className="text-pink-500">{currentTrack?.title}</span>
         </p>
       )}
 
