@@ -2,8 +2,7 @@
 
 import { useRef, useEffect } from 'react';
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/outline';
-import { useSelector, useDispatch } from 'react-redux';
-import type { RootState, AppDispatch } from "@/store";
+import { appDispatch, appSelector } from '@/hooks/storeHooks';
 import {
   play,
   pause,
@@ -12,9 +11,9 @@ import {
 } from "@/store/playerSlice";
 
 export default function AudioPlayer() {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = appDispatch();
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const { isPlaying, currentTime, currentTrack, duration } = useSelector((state: RootState) => state.player)
+  const { isPlaying, currentTime, currentTrack, duration } = appSelector(state => state.player);
   
   const togglePlay = () => {
     if (!audioRef.current) return;

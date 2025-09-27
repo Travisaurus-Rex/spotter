@@ -2,8 +2,7 @@
 
 import Sidebar from './Sidebar';
 import AudioPlayer from './AudioPlayer';
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store';
+import { appSelector } from '@/hooks/storeHooks';
 
 export const metadata = {
   title: 'Spotter Dashboard',
@@ -14,7 +13,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { currentTrack } = useSelector((state: RootState) => state.player);
+  const { currentTrack } = appSelector(store => store.player);
 
   return (
     <div className="relative min-h-screen bg-gray-900 text-white">
